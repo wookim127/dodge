@@ -1,66 +1,60 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+ï»¿using UnityEngine;
 
-public class GameManager : MonoBehaviour
-{
-    public GameObject gameoverText;      //°ÔÀÓ ¿À¹ö ½Ã È°¼ºÈ­ÇÒ ÅØ½ºÆ® °ÔÀÓ ¿ÀºêÁ§Æ® (TextUI)
-    public Text timeText;                //»ıÁ¸ ½Ã°£À» Ç¥½ÃÇÒ ÅØ½ºÆ® ÄÄÆ÷³ÍÆ®
-    public Text recordText;              //ÃÖ°í ±â·ÏÀ» Ç¥½ÃÇÒ ÅØ½ºÆ® ÄÄÆ÷³ÍÆ®
-
-    private float surviveTime;           //»ıÁ¸ ½Ã°£
-    private bool isGameover;             //°ÔÀÓ¿À¹ö »óÅÂ
-
-    void Start()
+// ì ìˆ˜ì™€ ê²Œì„ ì˜¤ë²„ ì—¬ë¶€ë¥¼ ê´€ë¦¬í•˜ëŠ” ê²Œì„ ë§¤ë‹ˆì €
+public class GameManager : MonoBehaviour {
+    // ì‹±ê¸€í†¤ ì ‘ê·¼ìš© í”„ë¡œí¼í‹°
+    public static GameManager instance
     {
+        get
+        {
+            // ë§Œì•½ ì‹±ê¸€í†¤ ë³€ìˆ˜ì— ì•„ì§ ì˜¤ë¸Œì íŠ¸ê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ë‹¤ë©´
+            if (m_instance == null)
+            {
+                // ì”¬ì—ì„œ GameManager ì˜¤ë¸Œì íŠ¸ë¥¼ ì°¾ì•„ í• ë‹¹
+                m_instance = FindObjectOfType<GameManager>();
+            }
 
-        surviveTime = 0;
-        isGameover = false;
+            // ì‹±ê¸€í†¤ ì˜¤ë¸Œì íŠ¸ë¥¼ ë°˜í™˜
+            return m_instance;
+        }
     }
 
-    void Update()
-    {
+    private static GameManager m_instance; // ì‹±ê¸€í†¤ì´ í• ë‹¹ë  static ë³€ìˆ˜
+
+    private int score = 0; // í˜„ì¬ ê²Œì„ ì ìˆ˜
+    public bool isGameover { get; private set; } // ê²Œì„ ì˜¤ë²„ ìƒíƒœ
+
+    private void Awake() {
+        // ì”¬ì— ì‹±ê¸€í†¤ ì˜¤ë¸Œì íŠ¸ê°€ ëœ ë‹¤ë¥¸ GameManager ì˜¤ë¸Œì íŠ¸ê°€ ìˆë‹¤ë©´
+        if (instance != this)
+        {
+            // ìì‹ ì„ íŒŒê´´
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start() {
+        // í”Œë ˆì´ì–´ ìºë¦­í„°ì˜ ì‚¬ë§ ì´ë²¤íŠ¸ ë°œìƒì‹œ ê²Œì„ ì˜¤ë²„
+        FindObjectOfType<PlayerHealth>().onDeath += EndGame;
+    }
+
+    // ì ìˆ˜ë¥¼ ì¶”ê°€í•˜ê³  UI ê°±ì‹ 
+    public void AddScore(int newScore) {
+        // ê²Œì„ ì˜¤ë²„ê°€ ì•„ë‹Œ ìƒíƒœì—ì„œë§Œ ì ìˆ˜ ì¦ê°€ ê°€ëŠ¥
         if (!isGameover)
         {
-
-            surviveTime += Time.deltaTime;
-
-            timeText.text = "Time : " + (int)surviveTime;               //float -> int º¯È¯ ½ÃÅ°¸é ¼Ò¼öÁ¡ÀÌ ¾ø¾îÁ®¼­ º¸ÀÓ
+            // ì ìˆ˜ ì¶”ê°€
+            score += newScore;
+            // ì ìˆ˜ UI í…ìŠ¤íŠ¸ ê°±ì‹ 
+            UIManager.instance.UpdateScoreText(score);
         }
-        else
-        {
-            if(Input.GetKeyDown(KeyCode.R))
-            {
-
-                SceneManager.LoadScene("SampleScene");
-            }
-        }
-
     }
 
-    public void EndGame()
-    {
-
+    // ê²Œì„ ì˜¤ë²„ ì²˜ë¦¬
+    public void EndGame() {
+        // ê²Œì„ ì˜¤ë²„ ìƒíƒœë¥¼ ì°¸ìœ¼ë¡œ ë³€ê²½
         isGameover = true;
-
-        gameoverText.SetActive(true);
-
-        float bestTime = PlayerPrefs.GetFloat("BestTime");
-
-        //ÀÌÀü ±îÁöÀÇ ÃÖ°í ±â·Ïº¸´Ù ÇöÀç »ıÁ¸ ½Ã°£ÀÌ ´õÅ©´Ù¸é
-        if(surviveTime > bestTime)
-        {
-
-            bestTime = surviveTime;
-
-            //º¯°æµÈ ÃÖ°í±â·ÏÀ» BestTime Å°·Î ÀúÀå
-            PlayerPrefs.SetFloat("BestTime", bestTime);
-        }
-
-
-        recordText.text = "Best Time : " + (int)bestTime;
+        // ê²Œì„ ì˜¤ë²„ UIë¥¼ í™œì„±í™”
+        UIManager.instance.SetActiveGameoverUI(true);
     }
-
 }

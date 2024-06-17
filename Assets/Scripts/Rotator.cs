@@ -1,20 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Rotator : MonoBehaviour
-{
-    public float rotationSpeed = 60.0f;
+// 게임 오브젝트를 지속적으로 회전하는 스크립트
+public class Rotator : MonoBehaviour {
+    public float rotationSpeed = 60f;
 
-
-    private void Awake()
-    {
-        Application.targetFrameRate = 60;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        transform.Rotate(0.0f, rotationSpeed, Time.deltaTime);
+    private void Update() {
+        transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
     }
 }
